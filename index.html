@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        h1 {
+            font-size: 4rem !important;
+            text-align: center;
+        }
+
+        section {
+            margin: 3% 15%
+        }
+    </style>
+    <title>Fire base golden book</title>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        clifford: "#da373d",
+                    },
+                },
+            },
+        };
+    </script>
+</head>
+
+<body>
+
+    <h1>Livre d'or</h1>
+
+    <section class="form">
+        <div class="grid gap-6 mb-6 md:grid-cols-2">
+            <div>
+                <label class="block mb-2 text-sm font-medium text-gray-900 dark:text-gray-400" for="user_name"> User
+                    name </label>
+                <input
+                    class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+                    type="text" name="user_name" id="user_name">
+            </div>
+        </div>
+        <label class="block mb-2 text-sm font-medium text-gray-900 dark:text-gray-400" for="user_name"> Message:
+        </label>
+        <textarea
+            class="block p-2.5 w-full text-sm text-gray-900 bg-gray-50 rounded-lg border border-gray-300 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+            name="" id="body" cols="30" rows="10"></textarea> <br> <br>
+        <button type="button" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-full"
+            id="submit"> Valider </button>
+    </section>
+
+    <section class="list">
+        <div id="listcontainer">
+
+        </div>
+    </section>
+
+
+    <script type="module">
+        // Import the functions you need from the SDKs you need
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/9.12.1/firebase-app.js";
+        import { getFirestore, collection, addDoc, getDocs, doc, deleteDoc } from "https://www.gstatic.com/firebasejs/9.12.1/firebase-firestore.js";
+
+        // TODO: Add SDKs for Firebase products that you want to use
+        // https://firebase.google.com/docs/web/setup#available-libraries
+
+        // Your web app's Firebase configuration
+        const firebaseConfig = {
+            apiKey: "AIzaSyA1vXMjR39a5aULQZ0KaX5d-WPE88n3Cok",
+            authDomain: "golden-book-1012b.firebaseapp.com",
+            projectId: "golden-book-1012b",
+            storageBucket: "golden-book-1012b.appspot.com",
+            messagingSenderId: "365048029666",
+            appId: "1:365048029666:web:0531512592e7108dc799bb"
+        };
+
+        // Initialize Firebase
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+        const listcontainer = document.getElementById('listcontainer');
+        const writeList = function (item) {
+            listcontainer.innerHTML += `<div id="content-container" class="p-6 bg-white rounded-lg border border-gray-200 shadow-md dark:bg-gray-800 dark:border-gray-700">
+            <a href="#">
+                    <h5 class="mb-2 text-2xl font-bold tracking-tight text-gray-900 dark:text-white">${item.user_name}</h5>
+                </a>
+                <p class="mb-3 font-normal text-gray-700 dark:text-gray-400">${item.body}</p> 
+                <button  id="delete" value="${item.id}" class="inline-flex items-center py-2 px-3 text-sm font-medium text-center text-white bg-blue-700 rounded-lg hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800">
+                 Delete </button> 
+                </div>`
+        }
+
+        const querySnapshot = await getDocs(collection(db, "comments"));
+        querySnapshot.forEach((doc) => {
+            const item = Object.assign({ id: doc.id }, doc.data())
+            writeList(item)
+        });
+
+
+        const submitContent = document.getElementById('submit');
+        submitContent.addEventListener('click', async (e) => {
+            const user_name = document.getElementById('user_name').value;
+            const body = document.getElementById('body').value;
+
+            const payload = Object.assign({}, { user_name: user_name, body: body })
+
+            try {
+                const docRef = await addDoc(collection(db, "comments"), payload, {
+                });
+                console.log("Document written with ID: ", docRef.id);
+                window.location.reload();
+            } catch (e) {
+                console.error("Error adding document: ", e);
+            }
+
+        })
+        const deleteContent = document.getElementById('delete');
+        console.log(deleteContent);
+        deleteContent.addEventListener('click', async (e) => {
+            const id = deleteContent.value;
+            const docRef = doc(db, "comments", id);
+            deleteDoc(docRef)
+                .then(() => {
+                    console.log("Entire Document has been deleted successfully.")
+                    window.location.reload();
+                })
+                .catch(error => {
+                    console.log(error);
+                })
+        })
+    </script>
+</body>
+
+</html>
